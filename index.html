@@ -158,18 +158,18 @@
   .start-btn:hover {
     background: #0056b3;
   }
-  @keyframes shake {
+ @keyframes shake {
   0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  50% { transform: translateX(5px); }
-  75% { transform: translateX(-5px); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
 }
 
 .next-btn.shake {
   animation: shake 0.4s ease;
-  background: #ff4444;
+  background: #ff4444 !important;
 }
-
 </style>
 </head>
 <body>
@@ -245,14 +245,14 @@ document.addEventListener("DOMContentLoaded", function() {
       btn.addEventListener("click", () => {
         const selectedOption = slide.querySelector(".option.selected");
 
-        // Check if this slide requires a choice
+        // Require a choice on language and experience slides
         if ((index === 1 || index === 2) && !selectedOption) {
           btn.classList.add("shake");
           setTimeout(() => btn.classList.remove("shake"), 500);
-          return; // Stop here if nothing is selected
+          return;
         }
 
-        // Continue to next slide
+        // Move to next slide
         slides[current].classList.remove("active");
         slides[current].classList.add("left");
         current++;
@@ -260,12 +260,12 @@ document.addEventListener("DOMContentLoaded", function() {
         if (current < slides.length) {
           slides[current].classList.add("active");
         } else {
-          window.location.href = "/journey";
+          window.location.href = "https://learncodium.github.io/codium-journey/register";
         }
       });
     }
 
-    // Option click handler for language reactions
+    // Handle language selection reactions
     const options = slide.querySelectorAll(".option");
     options.forEach(opt => {
       opt.addEventListener("click", () => {
@@ -275,8 +275,8 @@ document.addEventListener("DOMContentLoaded", function() {
         if (index === 1) {
           const botText = slide.querySelector(".bot-text");
           const rawText = opt.textContent.trim();
-
           let message = "";
+
           if (rawText.includes("Python")) message = "Great choice! We’ll master <b>Python</b> — one snake at a time 🐍";
           else if (rawText.includes("HTML")) message = "Let’s build the web — one tag at a time 🌐";
           else if (rawText.includes("JavaScript")) message = "Let’s make the web come alive with <b>JavaScript</b> ⚡";
@@ -296,6 +296,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 </body>
 </html>
+
 
 
 
