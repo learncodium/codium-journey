@@ -158,6 +158,18 @@
   .start-btn:hover {
     background: #0056b3;
   }
+  @keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+}
+
+.next-btn.shake {
+  animation: shake 0.4s ease;
+  background: #ff4444;
+}
+
 </style>
 </head>
 <body>
@@ -225,17 +237,35 @@
 document.addEventListener("DOMContentLoaded", function() {
   const slides = document.querySelectorAll(".slide");
   let current = 0;
+  let selectedLanguage = ""; // store selected language
 
   slides.forEach((slide, index) => {
     const btn = slide.querySelector(".next-btn");
 
     if (btn) {
       btn.addEventListener("click", () => {
+        // Check if this slide requires selection
+        const options = slide.querySelectorAll(".option");
+        const selected = slide.querySelector(".option.selected");
+
+        // If there are options but none selected — stop and alert
+        if (options.length > 0 && !selected) {
+          btn.classList.add("shake");
+          setTimeout(() => btn.classList.remove("shake"), 500);
+          return; // don't go next
+        }
+
+        // Move to next slide
         slides[current].classList.remove("active");
         slides[current].classList.add("left");
         current++;
 
         if (current < slides.length) {
+          // If we are moving to the experience slide
+          if (current === 2 && selectedLanguage) {
+            const botText = slides[current].querySelector(".bot-text");
+            botText.innerHTML = `Great choice! Let's learn <b>${selectedLanguage}</b> together 🚀`;
+          }
           slides[current].classList.add("active");
         } else {
           window.location.href = "/journey";
@@ -243,29 +273,44 @@ document.addEventListener("DOMContentLoaded", function() {
       });
     }
 
-    // Option click handler for language reactions
+    // Handle language selection on slide 1
     const options = slide.querySelectorAll(".option");
     options.forEach(opt => {
       opt.addEventListener("click", () => {
         options.forEach(o => o.classList.remove("selected"));
         opt.classList.add("selected");
 
+        // Save language only if we're on the language slide
         if (index === 1) {
+          const text = opt.textContent.trim().split(" ")[1]; 
+          selectedLanguage = text || "your topic";
+
           const botText = slide.querySelector(".bot-text");
-          const rawText = opt.textContent.trim();
-
-          let message = "";
-          if (rawText.includes("Python")) message = "Great choice! We’ll master <b>Python</b> — one snake at a time 🐍";
-          else if (rawText.includes("HTML")) message = "Let’s build the web — one tag at a time 🌐";
-          else if (rawText.includes("JavaScript")) message = "Let’s make the web come alive with <b>JavaScript</b> ⚡";
-          else if (rawText.includes("Java")) message = "Time to brew some <b>Java</b> magic ☕";
-          else if (rawText.includes("C++")) message = "Power and performance — let’s code in <b>C++</b> 💪";
-          else if (rawText.includes("SQL")) message = "Let’s uncover insights with <b>SQL</b> 📊";
-          else if (rawText.includes("CSS")) message = "Let’s make things beautiful with <b>CSS</b> 🎨";
-          else if (rawText.includes("idea")) message = "No worries! I’ll help you discover what fits you best 😊";
-          else message = "Great choice! Let's get started 🚀";
-
-          botText.innerHTML = message;
+          switch (selectedLanguage.toLowerCase()) {
+            case "python":
+              botText.innerHTML = "🐍 Python! Smart choice — let's automate everything!";
+              break;
+            case "html":
+              botText.innerHTML = "💻 HTML! Let's build the web — one tag at a time!";
+              break;
+            case "java":
+              botText.innerHTML = "☕ Java! Time to brew some serious code!";
+              break;
+            case "javascript":
+              botText.innerHTML = "🧠 JavaScript! Let's bring interactivity to life!";
+              break;
+            case "c++":
+              botText.innerHTML = "⚙️ C++! Power and performance, let's go deep!";
+              break;
+            case "sql":
+              botText.innerHTML = "📊 SQL! Let's master the language of data!";
+              break;
+            case "css":
+              botText.innerHTML = "🎨 CSS! Let's make everything beautiful!";
+              break;
+            default:
+              botText.innerHTML = "💭 No worries — we'll help you figure it out!";
+          }
         }
       });
     });
@@ -274,6 +319,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 </body>
 </html>
+
 
 
 
