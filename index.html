@@ -243,6 +243,16 @@ document.addEventListener("DOMContentLoaded", function() {
 
     if (btn) {
       btn.addEventListener("click", () => {
+        const selectedOption = slide.querySelector(".option.selected");
+
+        // Check if this slide requires a choice
+        if ((index === 1 || index === 2) && !selectedOption) {
+          btn.classList.add("shake");
+          setTimeout(() => btn.classList.remove("shake"), 500);
+          return; // Stop here if nothing is selected
+        }
+
+        // Continue to next slide
         slides[current].classList.remove("active");
         slides[current].classList.add("left");
         current++;
@@ -286,6 +296,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 </body>
 </html>
+
 
 
 
