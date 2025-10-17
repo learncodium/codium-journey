@@ -165,135 +165,79 @@ button:hover { background: #0056b3; }
   </div>
 </div>
 
+<!-- Supabase SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
+// --- SLIDER ANIMATION ---
+const slider = document.getElementById("slider");
+const toSignUp = document.getElementById("toSignUp");
+const toSignIn = document.getElementById("toSignIn");
+
+if (toSignUp && toSignIn && slider) {
+  toSignUp.addEventListener("click", () => {
+    slider.style.transform = "translateX(-50%)";
+  });
+  toSignIn.addEventListener("click", () => {
+    slider.style.transform = "translateX(0%)";
+  });
+} else {
+  console.warn("Slider elements not found. Check IDs.");
+}
+
+// --- SUPABASE AUTH ---
 (async function init() {
-  try {
-    // --- CONFIG (keep as your values) ---
-    const SUPABASE_URL = "https://esdzwumkkdnlxsiljlzp.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzZHp3dW1ra2RubHhzaWxqbHpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2NDkxMzAsImV4cCI6MjA3NjIyNTEzMH0.ZTcGGjJGqZhWam-iwewA5Dc6q13BgkCIY4a2_TYBhu0";
-    // --------------------------------------
+  const SUPABASE_URL = "https://esdzwumkkdnlxsiljlzp.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzZHp3dW1ra2RubHhzaWxqbHpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2NDkxMzAsImV4cCI6MjA3NjIyNTEzMH0.ZTcGGjJGqZhWam-iwewA5Dc6q13BgkCIY4a2_TYBhu0";
+  
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    if (!window.supabase || !window.supabase.createClient) {
-      console.error("Supabase SDK not loaded. Check your <script> src for supabase.");
-      return;
-    }
+  function toast(msg) { alert(msg); console.log(msg); }
 
-    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    console.log("Supabase client initialized.");
+  // Sign Up
+  document.getElementById("register-btn").addEventListener("click", async (e) => {
+    e.preventDefault();
+    const fullName = document.getElementById("fullname").value.trim();
+    const email = document.getElementById("signup-email").value.trim();
+    const password = document.getElementById("signup-password").value.trim();
+    if (!fullName || !email || !password) return toast("Please fill all fields.");
 
-    // UTIL: show a friendly toast (simple)
-    function toast(msg) { alert(msg); console.log(msg); }
+    const { data, error } = await client.auth.signUp({ email, password });
+    if (error) return toast("Sign up error: " + error.message);
 
-    // ---------- SIGN UP ----------
-    const registerBtn = document.getElementById("register-btn");
-    if (registerBtn) {
-      registerBtn.addEventListener("click", async (e) => {
-        e.preventDefault();
-        const fullName = (document.getElementById("fullname")||{}).value?.trim();
-        const email = (document.getElementById("signup-email")||{}).value?.trim();
-        const password = (document.getElementById("signup-password")||{}).value?.trim();
+    toast("Check your email for confirmation.");
+  });
 
-        if (!fullName || !email || !password) { toast("Please fill all signup fields."); return; }
+  // Sign In
+  document.getElementById("signin-btn").addEventListener("click", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("signin-email").value.trim();
+    const password = document.getElementById("signin-password").value.trim();
+    if (!email || !password) return toast("Please fill both fields.");
+    
+    const { data, error } = await client.auth.signInWithPassword({ email, password });
+    if (error) return toast("Sign in error: " + error.message);
 
-        console.log("Attempting signup:", email);
-        const { data, error } = await client.auth.signUp({ email, password });
+    toast("Signed in successfully!");
+    window.location.href = "/dashboard.html";
+  });
 
-        if (error) {
-          console.error("SignUp error:", error);
-          toast("Sign up error: " + error.message);
-          return;
-        }
+  // Google / Apple OAuth
+  const oauthHandler = async (provider) => {
+    const redirectTo = window.location.origin + "/dashboard.html";
+    const { error } = await client.auth.signInWithOAuth({ provider, options: { redirectTo }});
+    if (error) toast("OAuth error: " + error.message);
+  };
 
-        console.log("signUp response", data);
+  ["google-login", "google-signup"].forEach(id => {
+    document.getElementById(id)?.addEventListener("click", (e)=>{ e.preventDefault(); oauthHandler("google"); });
+  });
 
-        // If user object present immediately (some projects auto-confirm), insert profile
-        const userId = data?.user?.id ?? null;
-        if (userId) {
-          try {
-            const { error: insertErr } = await client.from("profiles").insert([
-              { id: userId, full_name: fullName, email }
-            ]);
-            if (insertErr) {
-              console.warn("Profile insert warning:", insertErr);
-            } else {
-              console.log("Profile inserted for user", userId);
-            }
-          } catch (err) {
-            console.error("Profile insert exception:", err);
-          }
-        } else {
-          // No immediate user (email confirmation required) — create a pre-profile record keyed by email (optional)
-          try {
-            const { error: insertPendingErr } = await client.from("profiles").upsert([
-              { email, full_name: fullName }
-            ], { onConflict: ['email'] });
-            if (insertPendingErr) console.warn("Upsert profile error (pending confirmation):", insertPendingErr);
-            else console.log("Profile upserted (pending confirmation) for", email);
-          } catch (err) {
-            console.error("Upsert exception:", err);
-          }
-        }
+  ["apple-login", "apple-signup"].forEach(id => {
+    document.getElementById(id)?.addEventListener("click", (e)=>{ e.preventDefault(); oauthHandler("apple"); });
+  });
 
-        toast("Sign up successful. Check email to confirm. If email auto-confirmed, you will be redirected.");
-      });
-    } else console.warn("register-btn not found in DOM.");
-
-    // ---------- SIGN IN ----------
-    const signinBtn = document.getElementById("signin-btn");
-    if (signinBtn) {
-      signinBtn.addEventListener("click", async (e) => {
-        e.preventDefault();
-        const email = (document.getElementById("signin-email")||{}).value?.trim();
-        const password = (document.getElementById("signin-password")||{}).value?.trim();
-        if (!email || !password) { toast("Please enter email and password."); return; }
-
-        console.log("Signing in:", email);
-        const { data, error } = await client.auth.signInWithPassword({ email, password });
-        if (error) {
-          console.error("SignIn error:", error);
-          toast("Sign in error: " + error.message);
-          return;
-        }
-        console.log("SignIn success:", data);
-        toast("Signed in! Redirecting...");
-        // redirect to dashboard (absolute or relative)
-        window.location.href = "/dashboard.html";
-      });
-    } else console.warn("signin-btn not found in DOM.");
-
-    // ---------- OAUTH (Google / Apple) ----------
-    const oauthHandler = async (provider) => {
-      try {
-        // Ensure your Supabase Auth settings include this origin in "Redirect URLs"
-        const redirectTo = window.location.origin + "/dashboard.html";
-        console.log(`Starting OAuth for ${provider}, redirectTo=${redirectTo}`);
-        const { error } = await client.auth.signInWithOAuth({ provider, options: { redirectTo }});
-        if (error) {
-          console.error("OAuth error:", error);
-          toast("OAuth error: " + error.message);
-        }
-      } catch (err) {
-        console.error("OAuth exception:", err);
-      }
-    };
-
-    ["google-login","google-signup"].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.addEventListener("click", (e)=>{ e.preventDefault(); oauthHandler("google"); });
-    });
-    ["apple-login","apple-signup"].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.addEventListener("click", (e)=>{ e.preventDefault(); oauthHandler("apple"); });
-    });
-
-    console.log("Event listeners attached. Ready.");
-  } catch (err) {
-    console.error("Init error:", err);
-    alert("Initialization error (see console).");
-  }
 })();
 </script>
 </body>
 </html>
-
