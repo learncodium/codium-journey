@@ -21,17 +21,43 @@ const client = supabase.createClient(
   const { data: { user } } = await client.auth.getUser();
   if (!user) {
     alert("Please sign in first!");
-    window.location.href = "/register.html";
+    window.location.href = "https://learncodium.github.io/codium-journey/register";
     return;
   }
 
-  document.getElementById("user-info").textContent = `Logged in as: ${user.email}`;
+  const chosenLang = localStorage.getItem("chosenLanguage");
+  document.getElementById("user-info").innerHTML = `
+    Logged in as: <b>${user.email}</b><br><br>
+    <h2>Learning: ${chosenLang || "No language selected 😅"}</h2>
+  `;
+
+  // Example lesson placeholders
+  const lessonsDiv = document.createElement("div");
+  lessonsDiv.style.marginTop = "30px";
+
+  const lessons = {
+    Python: ["Intro to Python", "Variables & Data Types", "Loops", "Functions"],
+    HTML: ["HTML Basics", "Forms", "Links & Images", "Layouts"],
+    JavaScript: ["JS Basics", "DOM Manipulation", "Events", "Fetch API"],
+    Java: ["Java Setup", "OOP", "Collections", "Exceptions"],
+    "C++": ["Syntax", "Classes", "Pointers", "STL"],
+    SQL: ["Tables", "Queries", "Joins", "Aggregation"],
+    CSS: ["Selectors", "Box Model", "Flexbox", "Animations"]
+  };
+
+  const selectedLessons = lessons[chosenLang?.split(" ")[1]] || [];
+  lessonsDiv.innerHTML = selectedLessons.length
+    ? `<h3>Your first lessons:</h3><ul>${selectedLessons.map(l => `<li>${l}</li>`).join("")}</ul>`
+    : `<p>No lessons found for this choice.</p>`;
+
+  document.body.appendChild(lessonsDiv);
 })();
 
 document.getElementById("logout").addEventListener("click", async () => {
   await client.auth.signOut();
   alert("You have been logged out!");
-  window.location.href = "/register.html";
+  localStorage.removeItem("chosenLanguage");
+  window.location.href = "https://learncodium.github.io/codium-journey/register";
 });
 </script>
 </body>
