@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Codium Dashboard</title>
-
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
 body {
@@ -12,13 +11,13 @@ body {
   font-family: 'Inter', sans-serif;
   background: radial-gradient(circle at top, #1a1a1a, #0b0b0b);
   color: #fff;
-  text-align: center;
   min-height: 100vh;
-  padding-top: 80px;
   overflow-x: hidden;
 }
 h1 {
+  text-align: center;
   font-size: 2.5rem;
+  margin-top: 60px;
   margin-bottom: 10px;
   background: linear-gradient(90deg, #00ffa6, #00c8ff, #ff00c8);
   -webkit-background-clip: text;
@@ -26,32 +25,47 @@ h1 {
   animation: gradientMove 4s infinite linear;
 }
 @keyframes gradientMove { from {background-position:0%} to {background-position:100%} }
-#user-info {
-  font-size: 1.1rem;
-  background: rgba(255, 255, 255, 0.05);
-  display: inline-block;
-  padding: 15px 25px;
-  border-radius: 12px;
-  box-shadow: 0 0 10px rgba(0, 255, 200, 0.2);
-  transition: all 0.3s ease;
-}
-#user-info:hover { transform: scale(1.03); box-shadow: 0 0 25px rgba(0,255,200,0.4); }
-button {
+
+/* Profile icon */
+.profile-icon {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
   cursor: pointer;
-  transition: all 0.3s ease;
+  border: 2px solid #00c8ff;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+  z-index: 1001;
 }
+.profile-icon:hover { transform: scale(1.1); }
+
+/* Drawer */
+.drawer {
+  position: fixed;
+  top: 0;
+  right: -360px;
+  width: 350px;
+  height: 100%;
+  background: rgba(20,20,30,0.95);
+  box-shadow: -5px 0 30px rgba(0,255,255,0.2);
+  padding: 30px 20px;
+  transition: right 0.4s ease;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.drawer.open { right: 0; }
+
 .profile-section {
-  margin: 40px auto;
   background: rgba(255,255,255,0.04);
-  width: 90%;
-  max-width: 500px;
   padding: 20px;
   border-radius: 15px;
+  text-align: center;
   box-shadow: 0 0 20px rgba(0,255,255,0.2);
-}
-.profile-section h2 {
-  margin-bottom: 15px;
-  color: #00c8ff;
 }
 .avatar {
   width: 100px; height: 100px; border-radius: 50%;
@@ -60,7 +74,6 @@ button {
   box-shadow: 0 0 15px rgba(0,200,255,0.4);
 }
 .edit-btn {
-  display: inline-block;
   margin-top: 10px;
   padding: 8px 16px;
   border-radius: 25px;
@@ -68,32 +81,13 @@ button {
   color: #00ffa6;
   background: transparent;
 }
-.edit-btn:hover {
-  background: #00ffa6;
-  color: #000;
-}
-.stats {
-  margin-top: 20px;
-  text-align: left;
-  line-height: 2rem;
-  padding-left: 20px;
-}
-.badges {
-  margin-top: 30px;
-  text-align: center;
-}
-.badges h3 {
-  color: #ff00c8;
-}
-.badge-item {
-  display: inline-block;
-  background: rgba(255,255,255,0.08);
-  margin: 5px;
-  padding: 8px 12px;
-  border-radius: 10px;
-}
+.edit-btn:hover { background: #00ffa6; color: #000; }
+.stats { margin-top: 20px; text-align: left; line-height: 2rem; }
+.badges { margin-top: 20px; text-align: center; }
+.badges h3 { color: #ff00c8; }
+.badge-item { display: inline-block; background: rgba(255,255,255,0.08); margin: 5px; padding: 8px 12px; border-radius: 10px; }
 .logout-btn {
-  margin-top: 30px;
+  margin-top: 20px;
   background: linear-gradient(90deg, #ff0055, #ff7b00);
   border: none;
   color: white;
@@ -101,32 +95,47 @@ button {
   font-size: 1rem;
   border-radius: 30px;
   cursor: pointer;
-  transition: all 0.3s ease;
   box-shadow: 0 0 15px rgba(255,123,0,0.3);
 }
 .logout-btn:hover { transform: scale(1.1); box-shadow: 0 0 25px rgba(255,123,0,0.6); }
+
+#overlay {
+  position: fixed; top:0; left:0; width:100%; height:100%;
+  background: rgba(0,0,0,0.4); display:none; z-index:999;
+}
+#overlay.active { display:block; }
 </style>
 </head>
 <body>
 
 <h1>Welcome to Codium 🚀</h1>
-<p id="user-info">Loading profile...</p>
+<p id="user-info" style="text-align:center;">Loading profile...</p>
 
-<div class="profile-section">
-  <img id="avatar" src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png" alt="Avatar" class="avatar">
-  <br>
-  <button class="edit-btn" id="edit-avatar">Edit Avatar</button>
-  <div class="stats" id="stats">
-    <p><b>🔥 Day Streak:</b> <span id="streak">0</span></p>
-    <p><b>💎 Tokens:</b> <span id="tokens">0</span></p>
-    <p><b>⭐ Total XP:</b> <span id="xp">0</span></p>
-  </div>
-  <div class="badges">
-    <h3>🏆 Badges</h3>
-    <div id="badges-list">No badges yet...</div>
+<!-- Profile icon -->
+<img id="profile-icon" class="profile-icon" src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png" alt="Profile">
+
+<!-- Drawer -->
+<div id="drawer" class="drawer">
+  <div>
+    <div class="profile-section">
+      <img id="avatar" src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png" alt="Avatar" class="avatar">
+      <br>
+      <button class="edit-btn" id="edit-avatar">Edit Avatar</button>
+      <div class="stats" id="stats">
+        <p><b>🔥 Day Streak:</b> <span id="streak">0</span></p>
+        <p><b>💎 Tokens:</b> <span id="tokens">0</span></p>
+        <p><b>⭐ Total XP:</b> <span id="xp">0</span></p>
+      </div>
+      <div class="badges">
+        <h3>🏆 Badges</h3>
+        <div id="badges-list">No badges yet...</div>
+      </div>
+    </div>
   </div>
   <button class="logout-btn" id="logout">Log Out</button>
 </div>
+
+<div id="overlay"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -135,6 +144,19 @@ const client = supabase.createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzZHp3dW1ra2RubHhzaWxqbHpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2NDkxMzAsImV4cCI6MjA3NjIyNTEzMH0.ZTcGGjJGqZhWam-iwewA5Dc6q13BgkCIY4a2_TYBhu0"
 );
 
+// Drawer toggle
+const drawer = document.getElementById('drawer');
+const overlay = document.getElementById('overlay');
+const profileIcon = document.getElementById('profile-icon');
+
+function toggleDrawer() {
+  drawer.classList.toggle('open');
+  overlay.classList.toggle('active');
+}
+
+profileIcon.addEventListener('click', toggleDrawer);
+overlay.addEventListener('click', toggleDrawer);
+
 (async () => {
   const { data: { user } } = await client.auth.getUser();
   if (!user) {
@@ -142,14 +164,13 @@ const client = supabase.createClient(
     window.location.href = "https://learncodium.github.io/codium-journey/register";
     return;
   }
-
   document.getElementById("user-info").innerHTML = `Logged in as <b>${user.email}</b>`;
 
   // Fetch profile
   const { data: profile } = await client
     .from("profiles")
     .select("*")
-    .eq("id", user.id)
+    .eq("user_id", user.id)
     .single();
 
   if (profile) {
@@ -158,21 +179,20 @@ const client = supabase.createClient(
     document.getElementById("xp").textContent = profile.total_xp || 0;
     if (profile.avatar_url)
       document.getElementById("avatar").src = profile.avatar_url;
+    profileIcon.src = profile.avatar_url || profileIcon.src;
   }
 
   // Fetch badges
-  const { data: userBadges } = await client
-    .from("user_badges")
-    .select(`
-      badges(name, icon_url)
-    `)
-    .eq("user_id", user.id);
+  const { data: userStats } = await client
+    .from("user_stats")
+    .select("badges")
+    .eq("user_id", user.id)
+    .single();
 
   const badgeContainer = document.getElementById("badges-list");
-  if (userBadges && userBadges.length > 0) {
-    badgeContainer.innerHTML = userBadges
-      .map(b => `<span class="badge-item">${b.badges.name}</span>`)
-      .join("");
+  if (userStats && userStats.badges && userStats.badges.length > 0) {
+    badgeContainer.innerHTML = userStats.badges
+      .map(name => `<span class="badge-item">🏅 ${name}</span>`).join("");
   }
 
   // Edit avatar
@@ -182,9 +202,10 @@ const client = supabase.createClient(
     const { error } = await client
       .from("profiles")
       .update({ avatar_url: newUrl })
-      .eq("id", user.id);
+      .eq("user_id", user.id);
     if (!error) {
       document.getElementById("avatar").src = newUrl;
+      profileIcon.src = newUrl;
       alert("Avatar updated!");
     }
   });
@@ -197,6 +218,5 @@ const client = supabase.createClient(
   });
 })();
 </script>
-
 </body>
 </html>
