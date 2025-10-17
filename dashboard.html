@@ -56,7 +56,7 @@ h1 {
   z-index: 1000;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
 }
 .drawer.open { right: 0; }
 
@@ -87,7 +87,7 @@ h1 {
 .badges h3 { color: #ff00c8; }
 .badge-item { display: inline-block; background: rgba(255,255,255,0.08); margin: 5px; padding: 8px 12px; border-radius: 10px; }
 .logout-btn {
-  margin-top: 20px;
+  margin-top: 15px;
   background: linear-gradient(90deg, #ff0055, #ff7b00);
   border: none;
   color: white;
@@ -104,6 +104,10 @@ h1 {
   background: rgba(0,0,0,0.4); display:none; z-index:999;
 }
 #overlay.active { display:block; }
+
+#file-input {
+  display: none;
+}
 </style>
 </head>
 <body>
@@ -116,23 +120,22 @@ h1 {
 
 <!-- Drawer -->
 <div id="drawer" class="drawer">
-  <div>
-    <div class="profile-section">
-      <img id="avatar" src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png" alt="Avatar" class="avatar">
-      <br>
-      <button class="edit-btn" id="edit-avatar">Edit Avatar</button>
-      <div class="stats" id="stats">
-        <p><b>🔥 Day Streak:</b> <span id="streak">0</span></p>
-        <p><b>💎 Tokens:</b> <span id="tokens">0</span></p>
-        <p><b>⭐ Total XP:</b> <span id="xp">0</span></p>
-      </div>
-      <div class="badges">
-        <h3>🏆 Badges</h3>
-        <div id="badges-list">No badges yet...</div>
-      </div>
+  <div class="profile-section">
+    <img id="avatar" src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png" alt="Avatar" class="avatar">
+    <br>
+    <button class="edit-btn" id="edit-avatar">Edit Avatar</button>
+    <input type="file" id="file-input" accept="image/*">
+    <div class="stats" id="stats">
+      <p><b>🔥 Day Streak:</b> <span id="streak">0</span></p>
+      <p><b>💎 Tokens:</b> <span id="tokens">0</span></p>
+      <p><b>⭐ Total XP:</b> <span id="xp">0</span></p>
     </div>
+    <div class="badges">
+      <h3>🏆 Badges</h3>
+      <div id="badges-list">No badges yet...</div>
+    </div>
+    <button class="logout-btn" id="logout">Log Out</button>
   </div>
-  <button class="logout-btn" id="logout">Log Out</button>
 </div>
 
 <div id="overlay"></div>
@@ -177,9 +180,10 @@ overlay.addEventListener('click', toggleDrawer);
     document.getElementById("streak").textContent = profile.day_streak || 0;
     document.getElementById("tokens").textContent = profile.tokens || 0;
     document.getElementById("xp").textContent = profile.total_xp || 0;
-    if (profile.avatar_url)
+    if (profile.avatar_url) {
       document.getElementById("avatar").src = profile.avatar_url;
-    profileIcon.src = profile.avatar_url || profileIcon.src;
+      profileIcon.src = profile.avatar_url;
+    }
   }
 
   // Fetch badges
@@ -195,20 +199,43 @@ overlay.addEventListener('click', toggleDrawer);
       .map(name => `<span class="badge-item">🏅 ${name}</span>`).join("");
   }
 
-  // Edit avatar
-  document.getElementById("edit-avatar").addEventListener("click", async () => {
-    const newUrl = prompt("Enter new avatar image URL:");
-    if (!newUrl) return;
-    const { error } = await client
-      .from("profiles")
-      .update({ avatar_url: newUrl })
-      .eq("user_id", user.id);
-    if (!error) {
-      document.getElementById("avatar").src = newUrl;
-      profileIcon.src = newUrl;
-      alert("Avatar updated!");
+  // Edit avatar: URL
+  document.getElementById("edit-avatar").addEventListener("click", () => {
+    const choice = confirm("Press OK to enter a URL, Cancel to upload a file from device.");
+    if (choice) {
+      const newUrl = prompt("Enter new avatar image URL:");
+      if (!newUrl) return;
+      updateAvatar(newUrl);
+    } else {
+      document.getElementById("file-input").click();
     }
   });
+
+  // Edit avatar: file upload
+  document.getElementById("file-input").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${user.id}_${Date.now()}.${fileExt}`;
+    const { data, error: uploadError } = await client.storage
+      .from('avatars')
+      .upload(fileName, file, { upsert: true });
+    if (uploadError) { alert("Upload failed!"); return; }
+    const { data: { publicUrl } } = client.storage.from('avatars').getPublicUrl(fileName);
+    updateAvatar(publicUrl);
+  });
+
+  async function updateAvatar(url) {
+    const { error } = await client
+      .from("profiles")
+      .update({ avatar_url: url })
+      .eq("user_id", user.id);
+    if (!error) {
+      document.getElementById("avatar").src = url;
+      profileIcon.src = url;
+      alert("Avatar updated!");
+    }
+  }
 
   // Logout
   document.getElementById("logout").addEventListener("click", async () => {
