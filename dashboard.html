@@ -249,6 +249,15 @@ overlay.addEventListener('click', toggleDrawer);
     window.location.href = "https://learncodium.github.io/codium-journey/register";
   });
 })();
+  const { data: { session } } = await client.auth.getSession();
+
+if (!session || !session.user) {
+  alert("Please sign in first!");
+  window.location.href = "https://learncodium.github.io/codium-journey/register";
+} else {
+  const user = session.user;
+  // proceed with dashboard
+}
 </script>
 </body>
 </html>
