@@ -4,10 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Codium Dashboard</title>
-<style>
-/* === Codium Dashboard Style === */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
 
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
@@ -17,10 +16,7 @@ body {
   min-height: 100vh;
   padding-top: 80px;
   overflow-x: hidden;
-  transition: background 0.5s ease;
 }
-
-/* === Title === */
 h1 {
   font-size: 2.5rem;
   margin-bottom: 10px;
@@ -29,13 +25,7 @@ h1 {
   -webkit-text-fill-color: transparent;
   animation: gradientMove 4s infinite linear;
 }
-
-@keyframes gradientMove {
-  from { background-position: 0% }
-  to { background-position: 100% }
-}
-
-/* === User Info === */
+@keyframes gradientMove { from {background-position:0%} to {background-position:100%} }
 #user-info {
   font-size: 1.1rem;
   background: rgba(255, 255, 255, 0.05);
@@ -45,58 +35,65 @@ h1 {
   box-shadow: 0 0 10px rgba(0, 255, 200, 0.2);
   transition: all 0.3s ease;
 }
-
-#user-info:hover {
-  transform: scale(1.03);
-  box-shadow: 0 0 25px rgba(0, 255, 200, 0.4);
-}
-
-/* === Lessons List === */
-h2 {
-  margin-top: 25px;
-  font-size: 1.8rem;
-  color: #00ffa6;
-  text-shadow: 0 0 8px rgba(0, 255, 166, 0.6);
-  animation: floatIn 1s ease forwards;
-}
-
-h3 {
-  color: #00c8ff;
-  margin-bottom: 10px;
-}
-
-ul {
-  list-style: none;
-  padding: 0;
-  margin: 0 auto;
-  max-width: 400px;
-  text-align: left;
-}
-
-li {
-  background: rgba(255, 255, 255, 0.06);
-  margin: 8px 0;
-  padding: 12px 18px;
-  border-radius: 10px;
-  transition: all 0.3s ease;
+#user-info:hover { transform: scale(1.03); box-shadow: 0 0 25px rgba(0,255,200,0.4); }
+button {
   cursor: pointer;
-  position: relative;
+  transition: all 0.3s ease;
 }
-
-li::before {
-  content: "💡";
-  margin-right: 8px;
+.profile-section {
+  margin: 40px auto;
+  background: rgba(255,255,255,0.04);
+  width: 90%;
+  max-width: 500px;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 0 20px rgba(0,255,255,0.2);
 }
-
-li:hover {
-  background: linear-gradient(90deg, #00ffa6, #00c8ff, #ff00c8);
-  color: #0b0b0b;
-  transform: translateX(5px);
+.profile-section h2 {
+  margin-bottom: 15px;
+  color: #00c8ff;
 }
-
-/* === Logout Button === */
-#logout {
-  margin-top: 40px;
+.avatar {
+  width: 100px; height: 100px; border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #00c8ff;
+  box-shadow: 0 0 15px rgba(0,200,255,0.4);
+}
+.edit-btn {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 8px 16px;
+  border-radius: 25px;
+  border: 1px solid #00ffa6;
+  color: #00ffa6;
+  background: transparent;
+}
+.edit-btn:hover {
+  background: #00ffa6;
+  color: #000;
+}
+.stats {
+  margin-top: 20px;
+  text-align: left;
+  line-height: 2rem;
+  padding-left: 20px;
+}
+.badges {
+  margin-top: 30px;
+  text-align: center;
+}
+.badges h3 {
+  color: #ff00c8;
+}
+.badge-item {
+  display: inline-block;
+  background: rgba(255,255,255,0.08);
+  margin: 5px;
+  padding: 8px 12px;
+  border-radius: 10px;
+}
+.logout-btn {
+  margin-top: 30px;
   background: linear-gradient(90deg, #ff0055, #ff7b00);
   border: none;
   color: white;
@@ -105,33 +102,31 @@ li:hover {
   border-radius: 30px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 0 15px rgba(255, 123, 0, 0.3);
+  box-shadow: 0 0 15px rgba(255,123,0,0.3);
 }
-
-#logout:hover {
-  transform: scale(1.1);
-  box-shadow: 0 0 25px rgba(255, 123, 0, 0.6);
-}
-
-/* === Smooth Animation === */
-@keyframes floatIn {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* === Mobile === */
-@media (max-width: 600px) {
-  body { padding-top: 60px; }
-  h1 { font-size: 2rem; }
-  #user-info { font-size: 1rem; padding: 12px 18px; }
-  li { font-size: 0.95rem; }
-}
+.logout-btn:hover { transform: scale(1.1); box-shadow: 0 0 25px rgba(255,123,0,0.6); }
 </style>
 </head>
-<body style="font-family: Inter, sans-serif; background:#0f0f0f; color:white; text-align:center; padding-top:100px;">
+<body>
+
 <h1>Welcome to Codium 🚀</h1>
-<p id="user-info"></p>
-<button id="logout">Log Out</button>
+<p id="user-info">Loading profile...</p>
+
+<div class="profile-section">
+  <img id="avatar" src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png" alt="Avatar" class="avatar">
+  <br>
+  <button class="edit-btn" id="edit-avatar">Edit Avatar</button>
+  <div class="stats" id="stats">
+    <p><b>🔥 Day Streak:</b> <span id="streak">0</span></p>
+    <p><b>💎 Tokens:</b> <span id="tokens">0</span></p>
+    <p><b>⭐ Total XP:</b> <span id="xp">0</span></p>
+  </div>
+  <div class="badges">
+    <h3>🏆 Badges</h3>
+    <div id="badges-list">No badges yet...</div>
+  </div>
+  <button class="logout-btn" id="logout">Log Out</button>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -148,40 +143,60 @@ const client = supabase.createClient(
     return;
   }
 
-  const chosenLang = localStorage.getItem("chosenLanguage");
-  document.getElementById("user-info").innerHTML = `
-    Logged in as: <b>${user.email}</b><br><br>
-    <h2>Learning: ${chosenLang || "No language selected 😅"}</h2>
-  `;
+  document.getElementById("user-info").innerHTML = `Logged in as <b>${user.email}</b>`;
 
-  // Example lesson placeholders
-  const lessonsDiv = document.createElement("div");
-  lessonsDiv.style.marginTop = "30px";
+  // Fetch profile
+  const { data: profile } = await client
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single();
 
-  const lessons = {
-    Python: ["Intro to Python", "Variables & Data Types", "Loops", "Functions"],
-    HTML: ["HTML Basics", "Forms", "Links & Images", "Layouts"],
-    JavaScript: ["JS Basics", "DOM Manipulation", "Events", "Fetch API"],
-    Java: ["Java Setup", "OOP", "Collections", "Exceptions"],
-    "C++": ["Syntax", "Classes", "Pointers", "STL"],
-    SQL: ["Tables", "Queries", "Joins", "Aggregation"],
-    CSS: ["Selectors", "Box Model", "Flexbox", "Animations"]
-  };
+  if (profile) {
+    document.getElementById("streak").textContent = profile.day_streak || 0;
+    document.getElementById("tokens").textContent = profile.tokens || 0;
+    document.getElementById("xp").textContent = profile.total_xp || 0;
+    if (profile.avatar_url)
+      document.getElementById("avatar").src = profile.avatar_url;
+  }
 
-  const selectedLessons = lessons[chosenLang?.split(" ")[1]] || [];
-  lessonsDiv.innerHTML = selectedLessons.length
-    ? `<h3>Your first lessons:</h3><ul>${selectedLessons.map(l => `<li>${l}</li>`).join("")}</ul>`
-    : `<p>No lessons found for this choice.</p>`;
+  // Fetch badges
+  const { data: userBadges } = await client
+    .from("user_badges")
+    .select(`
+      badges(name, icon_url)
+    `)
+    .eq("user_id", user.id);
 
-  document.body.appendChild(lessonsDiv);
+  const badgeContainer = document.getElementById("badges-list");
+  if (userBadges && userBadges.length > 0) {
+    badgeContainer.innerHTML = userBadges
+      .map(b => `<span class="badge-item">${b.badges.name}</span>`)
+      .join("");
+  }
+
+  // Edit avatar
+  document.getElementById("edit-avatar").addEventListener("click", async () => {
+    const newUrl = prompt("Enter new avatar image URL:");
+    if (!newUrl) return;
+    const { error } = await client
+      .from("profiles")
+      .update({ avatar_url: newUrl })
+      .eq("id", user.id);
+    if (!error) {
+      document.getElementById("avatar").src = newUrl;
+      alert("Avatar updated!");
+    }
+  });
+
+  // Logout
+  document.getElementById("logout").addEventListener("click", async () => {
+    await client.auth.signOut();
+    localStorage.removeItem("chosenLanguage");
+    window.location.href = "https://learncodium.github.io/codium-journey/register";
+  });
 })();
-
-document.getElementById("logout").addEventListener("click", async () => {
-  await client.auth.signOut();
-  alert("You have been logged out!");
-  localStorage.removeItem("chosenLanguage");
-  window.location.href = "https://learncodium.github.io/codium-journey/register";
-});
 </script>
+
 </body>
 </html>
