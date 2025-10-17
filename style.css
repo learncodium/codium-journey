@@ -1,6 +1,6 @@
-/* 🎨 Codium Global Style — Dark, Playful & Animated */
+/* 🌙 Codium Global Theme — Dark, Playful & Animated */
 
-/* ===== BASE ===== */
+/* ========== RESET ========== */
 * {
   box-sizing: border-box;
   transition: all 0.3s ease;
@@ -9,32 +9,31 @@
 body, html {
   margin: 0;
   padding: 0;
+  background: radial-gradient(circle at top right, #0d0d0d, #1a1a1a);
+  color: white;
   font-family: "Inter", sans-serif;
-  background: radial-gradient(circle at top right, #0f0f0f, #1a1a1a);
-  color: #fff;
-  min-height: 100vh;
+  height: 100%;
   overflow-x: hidden;
+  animation: fadeIn 0.8s ease-in-out;
 }
 
-/* Smooth fade-in */
-body {
-  animation: fadeIn 0.8s ease forwards;
-}
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* ===== BUTTONS ===== */
+/* ========== BUTTONS ========== */
 button, .start-btn {
   background: linear-gradient(90deg, #007bff, #00d4ff);
   border: none;
   color: white;
-  padding: 0.8rem 1.5rem;
+  padding: 0.9rem 1.5rem;
   border-radius: 0.6rem;
   font-size: 1rem;
   cursor: pointer;
   box-shadow: 0 0 10px rgba(0,0,0,0.4);
+  font-weight: 500;
+  letter-spacing: 0.3px;
 }
 
 button:hover, .start-btn:hover {
@@ -45,33 +44,24 @@ button:hover, .start-btn:hover {
 .start-btn {
   text-decoration: none;
   display: inline-block;
+  transition: background 0.3s, transform 0.3s;
 }
 
-/* ===== INPUTS ===== */
-input {
-  background: #1f1f1f;
-  border: 1px solid #333;
-  color: #fff;
-  border-radius: 0.5rem;
-  padding: 0.8rem;
-  width: 100%;
-}
-input:focus {
-  border-color: #00d4ff;
-  outline: none;
+/* Shake animation for "Continue" button when no choice selected */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
 }
 
-/* ===== CARD (Register/Login) ===== */
-.card {
-  background: rgba(25,25,25,0.95);
-  border-radius: 1rem;
-  box-shadow: 0 0 20px rgba(0,0,0,0.6);
-  padding: 2rem;
-  width: 350px;
-  text-align: center;
+.next-btn.shake {
+  animation: shake 0.4s ease;
+  background: #ff4444 !important;
 }
 
-/* ===== SLIDER (Journey) ===== */
+/* ========== INDEX.JS STYLES (Journey) ========== */
 .slider-container {
   position: relative;
   overflow: hidden;
@@ -93,16 +83,56 @@ input:focus {
   opacity: 0;
   transition: all 0.6s ease;
 }
+
 .slide.active {
   left: 0;
   opacity: 1;
 }
+
 .slide.left {
   left: -100%;
   opacity: 0;
 }
 
-/* ===== OPTIONS ===== */
+.bot-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.bot-section.intro {
+  flex-direction: column;
+  text-align: center;
+  justify-content: center;
+  margin-top: 5rem;
+}
+
+.bot-img {
+  width: 70px;
+  height: 70px;
+  filter: drop-shadow(0 0 10px #00d4ff80);
+}
+
+.bot-img.big {
+  width: 150px;
+  height: 150px;
+}
+
+.bot-text {
+  background: #222;
+  padding: 1rem 1.3rem;
+  border-radius: 0.8rem;
+  font-size: 1.2rem;
+  border: 1px solid #333;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+.bot-text.big-text {
+  font-size: 1.5rem;
+  line-height: 2.2rem;
+}
+
 .options {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
@@ -112,52 +142,32 @@ input:focus {
 .option {
   background: #1f1f1f;
   padding: 1rem;
-  border-radius: 0.6rem;
+  border-radius: 0.7rem;
   cursor: pointer;
   border: 2px solid transparent;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  font-size: 1rem;
+  transition: all 0.3s ease;
 }
+
 .option:hover {
   background: #2a2a2a;
   transform: translateY(-2px);
 }
+
 .option.selected {
   background: linear-gradient(90deg, #007bff, #00d4ff);
   border-color: #00d4ff;
 }
 
-/* ===== BOT SECTION ===== */
-.bot-section {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-.bot-section.intro {
-  flex-direction: column;
-  text-align: center;
-  justify-content: center;
-  margin-top: 5rem;
-}
-.bot-img {
-  width: 80px;
-  height: 80px;
-}
-.bot-text {
-  background: #222;
-  padding: 1rem 1.3rem;
-  border-radius: 0.8rem;
-  font-size: 1.1rem;
-  border: 1px solid #333;
-  box-shadow: 0 0 10px rgba(0,0,0,0.3);
-}
-.bot-text.big-text {
-  font-size: 1.4rem;
+.learners {
+  color: #aaa;
+  font-size: 0.85rem;
 }
 
-/* ===== ROAD BACKGROUND (Register) ===== */
+/* ========== REGISTER PAGE ========== */
 .bg-road {
   position: fixed;
   inset: 0;
@@ -166,14 +176,129 @@ input:focus {
   z-index: 0;
   opacity: 0.6;
 }
+
 @keyframes moveRoad {
   0% { background-position-y: 0; }
   100% { background-position-y: 30px; }
 }
 
-/* ===== RESPONSIVE ===== */
+.container {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  width: 200%;
+  height: 100vh;
+  transition: transform 0.7s ease-in-out;
+}
+
+.slide {
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card {
+  background: rgba(30,30,30,0.9);
+  padding: 2rem 3rem;
+  border-radius: 1rem;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  width: 350px;
+  text-align: center;
+}
+
+h2 {
+  margin-bottom: 1.5rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+input {
+  background: #1f1f1f;
+  border: 1px solid #333;
+  border-radius: 0.5rem;
+  padding: 0.8rem;
+  color: white;
+}
+
+input:focus {
+  border-color: #00d4ff;
+  outline: none;
+}
+
+.oauth {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 1.2rem;
+}
+
+.oauth button {
+  background: #222;
+  border: 1px solid #333;
+  color: white;
+}
+
+.oauth button:hover {
+  background: #333;
+}
+
+.switch {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: #aaa;
+}
+
+.switch span {
+  color: #00b4ff;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+/* ========== DASHBOARD ========== */
+#logout {
+  margin-top: 1rem;
+  background: linear-gradient(90deg, #ff006a, #ff5f00);
+}
+
+#logout:hover {
+  background: linear-gradient(90deg, #ff5f00, #ff006a);
+  transform: scale(1.05);
+}
+
+#user-info {
+  font-size: 1.1rem;
+  margin-top: 20px;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  background: #1f1f1f;
+  margin: 8px auto;
+  padding: 10px 15px;
+  border-radius: 0.5rem;
+  width: 60%;
+  text-align: left;
+  transition: transform 0.3s ease;
+}
+
+li:hover {
+  background: #2a2a2a;
+  transform: translateX(5px);
+}
+
+/* ========== RESPONSIVE ========== */
 @media (max-width: 600px) {
   button, .start-btn { width: 100%; font-size: 0.9rem; }
   .slider-container { padding: 20px; }
   .card { width: 90%; padding: 1.5rem; }
+  li { width: 90%; }
 }
