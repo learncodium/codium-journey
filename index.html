@@ -6,6 +6,193 @@
 <link rel="icon" type="ico" href="logo.ico">
 <link rel="stylesheet" href="style.css">
 <title>Codium Learning Journey</title>
+  <style>
+  body, html {
+    background: #1a1a1a;
+    color: white;
+    font-family: "Inter", sans-serif;
+    height: 100%;
+    margin: 0;
+  }
+
+  /* Default styles for desktop */
+button {
+  font-size: 18px;
+  padding: 12px 24px;
+}
+
+/* Styles for small screens (phones) */
+@media (max-width: 600px) {
+  button {
+    font-size: 16px;
+    padding: 10px 18px;
+    width: 100%; /* make button full-width on phone */
+  }
+
+  .navbar, .content {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+
+  .slider-container {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    max-width: 900px;
+    margin: 50px auto;
+    background: #121212;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    min-height: 500px;
+  }
+
+  .slide {
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 100%;
+    opacity: 0;
+    transition: all 0.6s ease;
+  }
+
+  .slide.active {
+    left: 0;
+    opacity: 1;
+  }
+
+  .slide.left {
+    left: -100%;
+    opacity: 0;
+  }
+
+  .bot-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .bot-section.intro {
+    flex-direction: column;
+    text-align: center;
+    justify-content: center;
+    margin-top: 5rem;
+  }
+
+  .bot-img {
+    width: 70px;
+    height: 70px;
+  }
+
+  .bot-img.big {
+    width: 150px;
+    height: 150px;
+  }
+
+  .bot-text {
+    background: #222;
+    padding: 0.9rem 1.2rem;
+    border-radius: 0.8rem;
+    font-size: 1.2rem;
+    border: 1px solid #333;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  }
+
+  .bot-text.big-text {
+    font-size: 1.6rem;
+    line-height: 2.3rem;
+  }
+
+  .options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+
+  .option {
+    background: #1f1f1f;
+    padding: 1rem 1.2rem;
+    border-radius: 0.7rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1rem;
+    border: 2px solid transparent;
+  }
+
+  .option:hover {
+    background: #2a2a2a;
+  }
+
+  .option.selected {
+    background: #007bff;
+    border-color: #0056b3;
+  }
+
+  .learners {
+    color: #aaa;
+    font-size: 0.85rem;
+  }
+
+  .next-btn {
+    display: block;
+    margin: 2rem auto 0;
+    background: #007bff;
+    border: none;
+    color: white;
+    padding: 14px 35px;
+    border-radius: 0.6rem;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  .next-btn:hover {
+    background: #0056b3;
+  }
+
+  .options.final {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    height: 200px;
+  }
+
+  .start-btn {
+    background: #007bff;
+    border: none;
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 0.7rem;
+    text-decoration: none;
+    font-size: 1.1rem;
+    transition: background 0.3s ease;
+    position: absolute;
+    bottom: 40px;
+    right: 40px;
+  }
+
+  .start-btn:hover {
+    background: #0056b3;
+  }
+ @keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
+}
+
+.next-btn.shake {
+  animation: shake 0.4s ease;
+  background: #ff4444 !important;
+}
+</style>
 </head>
 <body>
 <div class="slider-container">
@@ -138,6 +325,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 </body>
 </html>
+
 
 
 
