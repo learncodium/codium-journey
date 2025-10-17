@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="ico" href="logo.ico">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" type="ico" href="logo.ico" />
 <title>Codium - Start</title>
 <style>
 body, html {
@@ -62,9 +62,7 @@ body, html {
   text-align: center;
 }
 
-h2 {
-  margin-bottom: 1.5rem;
-}
+h2 { margin-bottom: 1.5rem; }
 
 .input-group {
   display: flex;
@@ -92,9 +90,7 @@ button {
   transition: background 0.3s;
 }
 
-button:hover {
-  background: #0056b3;
-}
+button:hover { background: #0056b3; }
 
 .oauth {
   display: flex;
@@ -109,9 +105,7 @@ button:hover {
   color: white;
 }
 
-.oauth button:hover {
-  background: #333;
-}
+.oauth button:hover { background: #333; }
 
 .switch {
   margin-top: 1.5rem;
@@ -136,13 +130,13 @@ button:hover {
     <div class="card">
       <h2>Welcome Back 👋</h2>
       <div class="input-group">
-        <input type="email" placeholder="Email">
-        <input type="password" placeholder="Password">
+        <input id="signin-email" type="email" placeholder="Email" />
+        <input id="signin-password" type="password" placeholder="Password" />
       </div>
-      <button>Sign In</button>
+      <button id="signin-btn">Sign In</button>
       <div class="oauth">
-        <button>Continue with Google</button>
-        <button>Continue with Apple</button>
+        <button id="google-login">Continue with Google</button>
+        <button id="apple-login">Continue with Apple</button>
       </div>
       <div class="switch">
         Don’t have an account? <span id="toSignUp">Create</span>
@@ -155,14 +149,14 @@ button:hover {
     <div class="card">
       <h2>Create Account 🚀</h2>
       <div class="input-group">
-        <input type="text" placeholder="Full Name">
-        <input type="email" placeholder="Email">
-        <input type="password" placeholder="Password">
+        <input id="fullname" type="text" placeholder="Full Name" />
+        <input id="signup-email" type="email" placeholder="Email" />
+        <input id="signup-password" type="password" placeholder="Password" />
       </div>
-      <button>Sign Up</button>
+      <button id="register-btn">Sign Up</button>
       <div class="oauth">
-        <button>Continue with Google</button>
-        <button>Continue with Apple</button>
+        <button id="google-signup">Continue with Google</button>
+        <button id="apple-signup">Continue with Apple</button>
       </div>
       <div class="switch">
         Already have an account? <span id="toSignIn">Sign In</span>
@@ -171,47 +165,61 @@ button:hover {
   </div>
 </div>
 
-<script>
-const slider = document.getElementById("slider");
-const toSignUp = document.getElementById("toSignUp");
-const toSignIn = document.getElementById("toSignIn");
-
-toSignUp.addEventListener("click", () => {
-  slider.style.transform = "translateX(-50%)";
-});
-
-toSignIn.addEventListener("click", () => {
-  slider.style.transform = "translateX(0%)";
-});
-</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  const SUPABASE_URL = "https://esdzwumkkdnlxsiljlzp.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzZHp3dW1ra2RubHhzaWxqbHpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2NDkxMzAsImV4cCI6MjA3NjIyNTEzMH0.ZTcGGjJGqZhWam-iwewA5Dc6q13BgkCIY4a2_TYBhu0";
+const slider = document.getElementById("slider");
+document.getElementById("toSignUp").addEventListener("click", () => {
+  slider.style.transform = "translateX(-50%)";
+});
+document.getElementById("toSignIn").addEventListener("click", () => {
+  slider.style.transform = "translateX(0%)";
+});
 
-  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const SUPABASE_URL = "https://esdzwumkkdnlxsiljlzp.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzZHp3dW1ra2RubHhzaWxqbHpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2NDkxMzAsImV4cCI6MjA3NjIyNTEzMH0.ZTcGGjJGqZhWam-iwewA5Dc6q13BgkCIY4a2_TYBhu0";
+const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  async function signUpWithEmail(email, password) {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-    if (error) {
-      alert("Error: " + error.message);
-    } else {
-      alert("Success! Check your email for confirmation.");
-    }
-  }
+// Sign Up (Email)
+document.getElementById("register-btn").addEventListener("click", async () => {
+  const fullName = document.getElementById("fullname").value.trim();
+  const email = document.getElementById("signup-email").value.trim();
+  const password = document.getElementById("signup-password").value.trim();
 
-  // Example: When user clicks “Sign Up” button
-  document.getElementById("register-btn").addEventListener("click", () => {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    signUpWithEmail(email, password);
+  if (!fullName || !email || !password) return alert("❗ Please fill in all fields.");
+
+  const { data, error } = await client.auth.signUp({ email, password });
+  if (error) return alert("❌ " + error.message);
+
+  // Insert profile info
+  await client.from("profiles").insert([{ id: data.user.id, full_name: fullName, email }]);
+  alert("✅ Account created! Please confirm your email.");
+});
+
+// Sign In (Email)
+document.getElementById("signin-btn").addEventListener("click", async () => {
+  const email = document.getElementById("signin-email").value.trim();
+  const password = document.getElementById("signin-password").value.trim();
+
+  const { data, error } = await client.auth.signInWithPassword({ email, password });
+  if (error) return alert("❌ " + error.message);
+
+  alert("✅ Welcome back, " + email + "!");
+  window.location.href = "/dashboard.html";
+});
+
+// Google Login / Signup
+document.querySelectorAll("#google-login, #google-signup").forEach(btn => {
+  btn.addEventListener("click", async () => {
+    await client.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin + "/dashboard.html" } });
   });
-</script>
+});
 
+// Apple Login / Signup
+document.querySelectorAll("#apple-login, #apple-signup").forEach(btn => {
+  btn.addEventListener("click", async () => {
+    await client.auth.signInWithOAuth({ provider: "apple", options: { redirectTo: window.location.origin + "/dashboard.html" } });
+  });
+});
+</script>
 </body>
 </html>
-
-
