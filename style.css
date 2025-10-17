@@ -1,59 +1,87 @@
-/* 🌌 Global Reset + Smooth Animations */
+/* 🎨 Codium Global Style — Dark, Playful & Animated */
+
+/* ===== BASE ===== */
 * {
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
-  transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease;
 }
 
 body, html {
-  background: radial-gradient(circle at top left, #121212, #0d0d0d 60%);
-  color: #fff;
+  margin: 0;
+  padding: 0;
   font-family: "Inter", sans-serif;
-  height: 100%;
+  background: radial-gradient(circle at top right, #0f0f0f, #1a1a1a);
+  color: #fff;
   min-height: 100vh;
   overflow-x: hidden;
 }
 
-/* ✨ Common Elements */
-button, a {
-  font-family: "Inter", sans-serif;
+/* Smooth fade-in */
+body {
+  animation: fadeIn 0.8s ease forwards;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== BUTTONS ===== */
+button, .start-btn {
+  background: linear-gradient(90deg, #007bff, #00d4ff);
   border: none;
-  cursor: pointer;
+  color: white;
+  padding: 0.8rem 1.5rem;
   border-radius: 0.6rem;
-  text-decoration: none;
-}
-
-button:hover, a:hover {
-  transform: translateY(-3px);
-  filter: brightness(1.15);
-}
-
-/* 🎡 Buttons */
-button, .btn {
-  background: linear-gradient(90deg, #007bff, #00bfff);
-  color: #fff;
-  padding: 0.8rem 1.8rem;
   font-size: 1rem;
-  border-radius: 0.6rem;
-  box-shadow: 0 0 15px rgba(0,123,255,0.4);
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0,0,0,0.4);
 }
 
-button:hover, .btn:hover {
-  background: linear-gradient(90deg, #0056b3, #007bff);
+button:hover, .start-btn:hover {
+  background: linear-gradient(90deg, #00d4ff, #007bff);
+  transform: scale(1.05);
 }
 
-/* 🧠 Index / Journey Page */
+.start-btn {
+  text-decoration: none;
+  display: inline-block;
+}
+
+/* ===== INPUTS ===== */
+input {
+  background: #1f1f1f;
+  border: 1px solid #333;
+  color: #fff;
+  border-radius: 0.5rem;
+  padding: 0.8rem;
+  width: 100%;
+}
+input:focus {
+  border-color: #00d4ff;
+  outline: none;
+}
+
+/* ===== CARD (Register/Login) ===== */
+.card {
+  background: rgba(25,25,25,0.95);
+  border-radius: 1rem;
+  box-shadow: 0 0 20px rgba(0,0,0,0.6);
+  padding: 2rem;
+  width: 350px;
+  text-align: center;
+}
+
+/* ===== SLIDER (Journey) ===== */
 .slider-container {
   position: relative;
   overflow: hidden;
-  width: 90%;
+  width: 100%;
   max-width: 900px;
-  margin: 60px auto;
-  background: rgba(25, 25, 25, 0.95);
+  margin: 50px auto;
+  background: #121212;
   border-radius: 16px;
   padding: 40px;
-  box-shadow: 0 0 30px rgba(0, 123, 255, 0.3);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
   min-height: 500px;
 }
 
@@ -65,93 +93,71 @@ button:hover, .btn:hover {
   opacity: 0;
   transition: all 0.6s ease;
 }
-
 .slide.active {
   left: 0;
   opacity: 1;
 }
-
 .slide.left {
   left: -100%;
   opacity: 0;
 }
 
+/* ===== OPTIONS ===== */
+.options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1rem;
+}
+
+.option {
+  background: #1f1f1f;
+  padding: 1rem;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  border: 2px solid transparent;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.option:hover {
+  background: #2a2a2a;
+  transform: translateY(-2px);
+}
+.option.selected {
+  background: linear-gradient(90deg, #007bff, #00d4ff);
+  border-color: #00d4ff;
+}
+
+/* ===== BOT SECTION ===== */
 .bot-section {
   display: flex;
   align-items: center;
   gap: 1rem;
   margin-bottom: 2rem;
 }
-
 .bot-section.intro {
   flex-direction: column;
   text-align: center;
   justify-content: center;
   margin-top: 5rem;
 }
-
 .bot-img {
   width: 80px;
   height: 80px;
-  filter: drop-shadow(0 0 10px #00bfff);
 }
-
-.bot-img.big {
-  width: 150px;
-  height: 150px;
-}
-
 .bot-text {
-  background: rgba(30,30,30,0.8);
-  padding: 1rem 1.4rem;
+  background: #222;
+  padding: 1rem 1.3rem;
   border-radius: 0.8rem;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   border: 1px solid #333;
-  box-shadow: 0 0 10px rgba(0,123,255,0.3);
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
 }
-
 .bot-text.big-text {
-  font-size: 1.5rem;
-  line-height: 2.2rem;
+  font-size: 1.4rem;
 }
 
-.options {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
-}
-
-.option {
-  background: #1f1f1f;
-  padding: 1rem 1.2rem;
-  border-radius: 0.7rem;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 1rem;
-  border: 2px solid transparent;
-  transition: all 0.3s ease;
-}
-
-.option:hover {
-  background: #292929;
-  box-shadow: 0 0 12px rgba(0, 191, 255, 0.2);
-}
-
-.option.selected {
-  background: linear-gradient(90deg, #007bff, #00bfff);
-  border-color: #007bff;
-  color: #fff;
-  box-shadow: 0 0 15px rgba(0,123,255,0.5);
-}
-
-.learners {
-  color: #aaa;
-  font-size: 0.85rem;
-}
-
-/* 🚦 Register Page */
+/* ===== ROAD BACKGROUND (Register) ===== */
 .bg-road {
   position: fixed;
   inset: 0;
@@ -160,90 +166,14 @@ button:hover, .btn:hover {
   z-index: 0;
   opacity: 0.6;
 }
-
 @keyframes moveRoad {
   0% { background-position-y: 0; }
   100% { background-position-y: 30px; }
 }
 
-.container {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  width: 200%;
-  height: 100vh;
-  transition: transform 0.7s ease-in-out;
-}
-
-.slide {
-  width: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.card {
-  background: rgba(30,30,30,0.9);
-  padding: 2rem 3rem;
-  border-radius: 1rem;
-  box-shadow: 0 0 25px rgba(0,191,255,0.2);
-  width: 350px;
-  text-align: center;
-  transition: all 0.4s ease;
-}
-
-.card:hover {
-  transform: scale(1.02);
-}
-
-input {
-  background: #1f1f1f;
-  border: 1px solid #333;
-  border-radius: 0.5rem;
-  padding: 0.8rem;
-  color: white;
-  width: 100%;
-}
-
-.oauth button {
-  background: #222;
-  border: 1px solid #333;
-  color: white;
-  width: 100%;
-}
-
-.oauth button:hover {
-  background: #333;
-}
-
-/* 💻 Dashboard Page */
-.dashboard {
-  text-align: center;
-  padding-top: 100px;
-}
-
-.dashboard h1 {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  background: linear-gradient(90deg, #00bfff, #007bff);
-  -webkit-background-clip: text;
-  color: transparent;
-}
-
-.dashboard p {
-  color: #aaa;
-  font-size: 1rem;
-}
-
-/* 📱 Mobile */
+/* ===== RESPONSIVE ===== */
 @media (max-width: 600px) {
-  .slider-container {
-    padding: 25px;
-    margin: 30px auto;
-  }
-
-  button, .btn {
-    width: 100%;
-    font-size: 0.95rem;
-  }
+  button, .start-btn { width: 100%; font-size: 0.9rem; }
+  .slider-container { padding: 20px; }
+  .card { width: 90%; padding: 1.5rem; }
 }
