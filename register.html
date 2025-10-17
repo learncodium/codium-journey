@@ -224,7 +224,7 @@ if (toSignUp && toSignIn && slider) {
 
   // Google / Apple OAuth
   const oauthHandler = async (provider) => {
-    const redirectTo = window.location.origin + "/dashboard.html";
+    const redirectTo = "https://learncodium.github.io/codium-journey/dashboard.html";
     const { error } = await client.auth.signInWithOAuth({ provider, options: { redirectTo }});
     if (error) toast("OAuth error: " + error.message);
   };
@@ -241,5 +241,6 @@ if (toSignUp && toSignIn && slider) {
 </script>
 </body>
 </html>
+
 
 
