@@ -258,6 +258,7 @@ button {
 document.addEventListener("DOMContentLoaded", function() {
   const slides = document.querySelectorAll(".slide");
   let current = 0;
+  let selectedLanguage = null;
 
   slides.forEach((slide, index) => {
     const btn = slide.querySelector(".next-btn");
@@ -266,11 +267,17 @@ document.addEventListener("DOMContentLoaded", function() {
       btn.addEventListener("click", () => {
         const selectedOption = slide.querySelector(".option.selected");
 
-        // Require a choice on language and experience slides
+        // Require choice on language and experience slides
         if ((index === 1 || index === 2) && !selectedOption) {
           btn.classList.add("shake");
           setTimeout(() => btn.classList.remove("shake"), 500);
           return;
+        }
+
+        // Save language on slide 2
+        if (index === 1 && selectedOption) {
+          selectedLanguage = selectedOption.textContent.trim();
+          localStorage.setItem("chosenLanguage", selectedLanguage);
         }
 
         // Move to next slide
@@ -317,6 +324,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 </body>
 </html>
+
 
 
 
