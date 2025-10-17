@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Codium Dashboard</title>
+</head>
+<body style="font-family: Inter, sans-serif; background:#0f0f0f; color:white; text-align:center; padding-top:100px;">
+<h1>Welcome to Codium 🚀</h1>
+<p id="user-info"></p>
+<button id="logout">Log Out</button>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const client = supabase.createClient(
+  "https://esdzwumkkdnlxsiljlzp.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzZHp3dW1ra2RubHhzaWxqbHpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2NDkxMzAsImV4cCI6MjA3NjIyNTEzMH0.ZTcGGjJGqZhWam-iwewA5Dc6q13BgkCIY4a2_TYBhu0"
+);
+
+(async () => {
+  const { data: { user } } = await client.auth.getUser();
+  if (!user) {
+    alert("Please sign in first!");
+    window.location.href = "/register.html";
+    return;
+  }
+
+  document.getElementById("user-info").textContent = `Logged in as: ${user.email}`;
+})();
+
+document.getElementById("logout").addEventListener("click", async () => {
+  await client.auth.signOut();
+  alert("You have been logged out!");
+  window.location.href = "/register.html";
+});
+</script>
+</body>
+</html>
