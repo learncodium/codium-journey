@@ -67,6 +67,12 @@ h1 {
   text-align: center;
   box-shadow: 0 0 20px rgba(0,255,255,0.2);
 }
+#user-info {
+  color: #00c8ff;
+  margin-bottom: 15px;
+  font-weight: 600;
+  word-break: break-all;
+}
 .avatar {
   width: 100px; height: 100px; border-radius: 50%;
   object-fit: cover;
@@ -105,15 +111,12 @@ h1 {
 }
 #overlay.active { display:block; }
 
-#file-input {
-  display: none;
-}
+#file-input { display: none; }
 </style>
 </head>
 <body>
 
 <h1>Welcome to Codium 🚀</h1>
-<p id="user-info" style="text-align:center;">Loading profile...</p>
 
 <!-- Profile icon -->
 <img id="profile-icon" class="profile-icon" src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png" alt="Profile">
@@ -121,6 +124,7 @@ h1 {
 <!-- Drawer -->
 <div id="drawer" class="drawer">
   <div class="profile-section">
+    <p id="user-info"></p>
     <img id="avatar" src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png" alt="Avatar" class="avatar">
     <br>
     <button class="edit-btn" id="edit-avatar">Edit Avatar</button>
@@ -144,7 +148,7 @@ h1 {
 <script>
 const client = supabase.createClient(
   "https://esdzwumkkdnlxsiljlzp.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzZHp3dW1ra2RubHhzaWxqbHpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2NDkxMzAsImV4cCI6MjA3NjIyNTEzMH0.ZTcGGjJGqZhWam-iwewA5Dc6q13BgkCIY4a2_TYBhu0"
+  "YOUR_SUPABASE_ANON_KEY"
 );
 
 // Drawer toggle
@@ -167,7 +171,9 @@ overlay.addEventListener('click', toggleDrawer);
     window.location.href = "https://learncodium.github.io/codium-journey/register";
     return;
   }
-  document.getElementById("user-info").innerHTML = `Logged in as <b>${user.email}</b>`;
+
+  // Set user email inside drawer
+  document.getElementById("user-info").textContent = user.email;
 
   // Fetch profile
   const { data: profile } = await client
@@ -199,7 +205,7 @@ overlay.addEventListener('click', toggleDrawer);
       .map(name => `<span class="badge-item">🏅 ${name}</span>`).join("");
   }
 
-  // Edit avatar: URL
+  // Edit avatar: URL or file
   document.getElementById("edit-avatar").addEventListener("click", () => {
     const choice = confirm("Press OK to enter a URL, Cancel to upload a file from device.");
     if (choice) {
@@ -211,7 +217,6 @@ overlay.addEventListener('click', toggleDrawer);
     }
   });
 
-  // Edit avatar: file upload
   document.getElementById("file-input").addEventListener("change", async (e) => {
     const file = e.target.files[0];
     if (!file) return;
