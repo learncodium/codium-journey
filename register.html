@@ -167,59 +167,133 @@ button:hover { background: #0056b3; }
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const slider = document.getElementById("slider");
-document.getElementById("toSignUp").addEventListener("click", () => {
-  slider.style.transform = "translateX(-50%)";
-});
-document.getElementById("toSignIn").addEventListener("click", () => {
-  slider.style.transform = "translateX(0%)";
-});
+(async function init() {
+  try {
+    // --- CONFIG (keep as your values) ---
+    const SUPABASE_URL = "https://esdzwumkkdnlxsiljlzp.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzZHp3dW1ra2RubHhzaWxqbHpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2NDkxMzAsImV4cCI6MjA3NjIyNTEzMH0.ZTcGGjJGqZhWam-iwewA5Dc6q13BgkCIY4a2_TYBhu0";
+    // --------------------------------------
 
-const SUPABASE_URL = "https://esdzwumkkdnlxsiljlzp.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzZHp3dW1ra2RubHhzaWxqbHpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2NDkxMzAsImV4cCI6MjA3NjIyNTEzMH0.ZTcGGjJGqZhWam-iwewA5Dc6q13BgkCIY4a2_TYBhu0";
-const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    if (!window.supabase || !window.supabase.createClient) {
+      console.error("Supabase SDK not loaded. Check your <script> src for supabase.");
+      return;
+    }
 
-// Sign Up (Email)
-document.getElementById("register-btn").addEventListener("click", async () => {
-  const fullName = document.getElementById("fullname").value.trim();
-  const email = document.getElementById("signup-email").value.trim();
-  const password = document.getElementById("signup-password").value.trim();
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log("Supabase client initialized.");
 
-  if (!fullName || !email || !password) return alert("❗ Please fill in all fields.");
+    // UTIL: show a friendly toast (simple)
+    function toast(msg) { alert(msg); console.log(msg); }
 
-  const { data, error } = await client.auth.signUp({ email, password });
-  if (error) return alert("❌ " + error.message);
+    // ---------- SIGN UP ----------
+    const registerBtn = document.getElementById("register-btn");
+    if (registerBtn) {
+      registerBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+        const fullName = (document.getElementById("fullname")||{}).value?.trim();
+        const email = (document.getElementById("signup-email")||{}).value?.trim();
+        const password = (document.getElementById("signup-password")||{}).value?.trim();
 
-  // Insert profile info
-  await client.from("profiles").insert([{ id: data.user.id, full_name: fullName, email }]);
-  alert("✅ Account created! Please confirm your email.");
-});
+        if (!fullName || !email || !password) { toast("Please fill all signup fields."); return; }
 
-// Sign In (Email)
-document.getElementById("signin-btn").addEventListener("click", async () => {
-  const email = document.getElementById("signin-email").value.trim();
-  const password = document.getElementById("signin-password").value.trim();
+        console.log("Attempting signup:", email);
+        const { data, error } = await client.auth.signUp({ email, password });
 
-  const { data, error } = await client.auth.signInWithPassword({ email, password });
-  if (error) return alert("❌ " + error.message);
+        if (error) {
+          console.error("SignUp error:", error);
+          toast("Sign up error: " + error.message);
+          return;
+        }
 
-  alert("✅ Welcome back, " + email + "!");
-  window.location.href = "/dashboard.html";
-});
+        console.log("signUp response", data);
 
-// Google Login / Signup
-document.querySelectorAll("#google-login, #google-signup").forEach(btn => {
-  btn.addEventListener("click", async () => {
-    await client.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin + "/dashboard.html" } });
-  });
-});
+        // If user object present immediately (some projects auto-confirm), insert profile
+        const userId = data?.user?.id ?? null;
+        if (userId) {
+          try {
+            const { error: insertErr } = await client.from("profiles").insert([
+              { id: userId, full_name: fullName, email }
+            ]);
+            if (insertErr) {
+              console.warn("Profile insert warning:", insertErr);
+            } else {
+              console.log("Profile inserted for user", userId);
+            }
+          } catch (err) {
+            console.error("Profile insert exception:", err);
+          }
+        } else {
+          // No immediate user (email confirmation required) — create a pre-profile record keyed by email (optional)
+          try {
+            const { error: insertPendingErr } = await client.from("profiles").upsert([
+              { email, full_name: fullName }
+            ], { onConflict: ['email'] });
+            if (insertPendingErr) console.warn("Upsert profile error (pending confirmation):", insertPendingErr);
+            else console.log("Profile upserted (pending confirmation) for", email);
+          } catch (err) {
+            console.error("Upsert exception:", err);
+          }
+        }
 
-// Apple Login / Signup
-document.querySelectorAll("#apple-login, #apple-signup").forEach(btn => {
-  btn.addEventListener("click", async () => {
-    await client.auth.signInWithOAuth({ provider: "apple", options: { redirectTo: window.location.origin + "/dashboard.html" } });
-  });
-});
+        toast("Sign up successful. Check email to confirm. If email auto-confirmed, you will be redirected.");
+      });
+    } else console.warn("register-btn not found in DOM.");
+
+    // ---------- SIGN IN ----------
+    const signinBtn = document.getElementById("signin-btn");
+    if (signinBtn) {
+      signinBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+        const email = (document.getElementById("signin-email")||{}).value?.trim();
+        const password = (document.getElementById("signin-password")||{}).value?.trim();
+        if (!email || !password) { toast("Please enter email and password."); return; }
+
+        console.log("Signing in:", email);
+        const { data, error } = await client.auth.signInWithPassword({ email, password });
+        if (error) {
+          console.error("SignIn error:", error);
+          toast("Sign in error: " + error.message);
+          return;
+        }
+        console.log("SignIn success:", data);
+        toast("Signed in! Redirecting...");
+        // redirect to dashboard (absolute or relative)
+        window.location.href = "/dashboard.html";
+      });
+    } else console.warn("signin-btn not found in DOM.");
+
+    // ---------- OAUTH (Google / Apple) ----------
+    const oauthHandler = async (provider) => {
+      try {
+        // Ensure your Supabase Auth settings include this origin in "Redirect URLs"
+        const redirectTo = window.location.origin + "/dashboard.html";
+        console.log(`Starting OAuth for ${provider}, redirectTo=${redirectTo}`);
+        const { error } = await client.auth.signInWithOAuth({ provider, options: { redirectTo }});
+        if (error) {
+          console.error("OAuth error:", error);
+          toast("OAuth error: " + error.message);
+        }
+      } catch (err) {
+        console.error("OAuth exception:", err);
+      }
+    };
+
+    ["google-login","google-signup"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener("click", (e)=>{ e.preventDefault(); oauthHandler("google"); });
+    });
+    ["apple-login","apple-signup"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener("click", (e)=>{ e.preventDefault(); oauthHandler("apple"); });
+    });
+
+    console.log("Event listeners attached. Ready.");
+  } catch (err) {
+    console.error("Init error:", err);
+    alert("Initialization error (see console).");
+  }
+})();
 </script>
 </body>
 </html>
+
