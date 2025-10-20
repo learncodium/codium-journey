@@ -191,6 +191,12 @@ button {
   animation: shake 0.4s ease;
   background: #ff4444 !important;
 }
+  @media (max-width: 768px) {
+  .next-btn {
+    display: none;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -321,9 +327,26 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   });
 });
+  // Detect if device is mobile
+const isMobile = window.matchMedia("(max-width: 768px)").matches;
+
+document.querySelectorAll(".language-option").forEach(btn => {
+  btn.addEventListener("click", () => {
+    // highlight selected language
+    document.querySelectorAll(".language-option").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    if (isMobile) {
+      // automatically move to next slide if phone
+      goToNextSlide();  // your existing function for moving to next step
+    }
+  });
+});
+
 </script>
 </body>
 </html>
+
 
 
 
