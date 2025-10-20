@@ -198,128 +198,124 @@ h1 {
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const client = supabase.createClient(
-  "https://esdzwumkkdnlxsiljlzp.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzZHp3dW1ra2RubHhzaWxqbHpwIiwicm9zZSI6ImFub24iLCJpYXQiOjE3NjA2NDkxMzAsImV4cCI6MjA3NjIyNTEzMH0.ZTcGGjJGqZhWam-iwewA5Dc6q13BgkCIY4a2_TYBhu0"
-);
+document.addEventListener("DOMContentLoaded", () => {
+  const client = supabase.createClient(
+    "https://esdzwumkkdnlxsiljlzp.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzZHp3dW1ra2RubHhzaWxqbHpwIiwicm9zZSI6ImFub24iLCJpYXQiOjE3NjA2NDkxMzAsImV4cCI6MjA3NjIyNTEzMH0.ZTcGGjJGqZhWam-iwewA5Dc6q13BgkCIY4a2_TYBhu0"
+  );
 
-const drawer = document.getElementById('drawer');
-const overlay = document.getElementById('overlay');
-const profileIcon = document.getElementById('profile-icon');
-const avatarImg = document.getElementById('avatar');
-const fileInput = document.getElementById('file-input');
-const spinnerOverlay = document.getElementById('spinner-overlay');
+  const drawer = document.getElementById('drawer');
+  const overlay = document.getElementById('overlay');
+  const profileIcon = document.getElementById('profile-icon');
+  const avatarImg = document.getElementById('avatar');
+  const fileInput = document.getElementById('file-input');
+  const spinnerOverlay = document.getElementById('spinner-overlay');
 
-// Drawer toggle
-function toggleDrawer() {
-  drawer.classList.toggle('open');
-  overlay.classList.toggle('active');
-  drawer.setAttribute('aria-hidden', !drawer.classList.contains('open'));
-}
-profileIcon.addEventListener('click', toggleDrawer);
-overlay.addEventListener('click', toggleDrawer);
-
-// Spinner controls
-function showSpinner() { spinnerOverlay.style.display = 'flex'; }
-function hideSpinner() { spinnerOverlay.style.display = 'none'; }
-
-(async () => {
-  const { data: { session }, error: sessionError } = await client.auth.getSession();
-  if (sessionError) console.error(sessionError);
-
-  let user = session?.user;
-
-  // Listen to auth changes
-  client.auth.onAuthStateChange((_event, newSession) => {
-    if (!newSession) location.href = "https://learncodium.github.io/codium-journey/register";
-  });
-
-  if (!user) {
-    alert("Please sign in first!");
-    window.location.href = "https://learncodium.github.io/codium-journey/register";
-    return;
+  function toggleDrawer() {
+    drawer.classList.toggle('open');
+    overlay.classList.toggle('active');
+    drawer.setAttribute('aria-hidden', !drawer.classList.contains('open'));
   }
+  profileIcon.addEventListener('click', toggleDrawer);
+  overlay.addEventListener('click', toggleDrawer);
 
-  document.getElementById("user-info").textContent = user.email;
+  function showSpinner() { spinnerOverlay.style.display = 'flex'; }
+  function hideSpinner() { spinnerOverlay.style.display = 'none'; }
 
-  // Load cached avatar
-  const cachedAvatar = localStorage.getItem("avatar_url");
-  if (cachedAvatar) {
-    avatarImg.src = cachedAvatar;
-    profileIcon.src = cachedAvatar;
-  }
+  // Main async function
+  (async () => {
+    const { data: { session }, error: sessionError } = await client.auth.getSession();
+    if (sessionError) console.error(sessionError);
 
-  // Fetch or create profile
-  let { data: profile } = await client.from("profiles").select("*").eq("id", user.id).single();
-  if (!profile) {
-    await client.from("profiles").upsert({
-      id: user.id,
-      email: user.email,
-      avatar_url: "",
-      created_at: new Date(),
-      updated_at: new Date(),
+    let user = session?.user;
+
+    client.auth.onAuthStateChange((_event, newSession) => {
+      if (!newSession) location.href = "https://learncodium.github.io/codium-journey/register";
     });
-    ({ data: profile } = await client.from("profiles").select("*").eq("id", user.id).single());
-  }
 
-  if (profile.avatar_url) {
-    avatarImg.src = profile.avatar_url;
-    profileIcon.src = profile.avatar_url;
-    localStorage.setItem("avatar_url", profile.avatar_url);
-  }
-
-  // Avatar change
-  document.getElementById("edit-avatar").addEventListener("click", () => {
-    const choice = confirm("Press OK to enter a URL, Cancel to upload a file.");
-    if (choice) {
-      const newUrl = prompt("Enter new avatar URL:");
-      if (newUrl) updateAvatar(newUrl);
-    } else {
-      fileInput.click();
-    }
-  });
-
-  fileInput.addEventListener("change", async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    showSpinner();
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${user.id}_${Date.now()}.${fileExt}`;
-    const { error: uploadError } = await client.storage
-      .from("avatars")
-      .upload(fileName, file, { upsert: true });
-    if (uploadError) {
-      hideSpinner();
-      alert("Upload failed!");
-      console.error(uploadError);
+    if (!user) {
+      alert("Please sign in first!");
+      window.location.href = "https://learncodium.github.io/codium-journey/register";
       return;
     }
-    const { data: { publicUrl }, error: urlError } = client.storage
-      .from("avatars")
-      .getPublicUrl(fileName);
-    if (urlError) { hideSpinner(); alert("Failed to get public URL!"); return; }
-    await updateAvatar(publicUrl);
-    hideSpinner();
-  });
 
-  async function updateAvatar(url) {
-    const { error } = await client.from("profiles")
-      .update({ avatar_url: url, updated_at: new Date() })
-      .eq("id", user.id);
-    if (!error) {
-      avatarImg.src = url;
-      profileIcon.src = url;
-      localStorage.setItem("avatar_url", url);
-    } else console.error(error);
-  }
+    document.getElementById("user-info").textContent = user.email;
 
-  // Logout
-  document.getElementById("logout").addEventListener("click", async () => {
-    await client.auth.signOut();
-    localStorage.clear();
-    window.location.href = "https://learncodium.github.io/codium-journey/register";
-  });
-})();
+    // Load cached avatar
+    const cachedAvatar = localStorage.getItem("avatar_url");
+    if (cachedAvatar) {
+      avatarImg.src = cachedAvatar;
+      profileIcon.src = cachedAvatar;
+    }
+
+    // Fetch or create profile
+    let { data: profile, error } = await client.from("profiles").select("*").eq("id", user.id).single();
+    if (error && error.code !== 'PGRST116') console.error(error);
+    if (!profile) {
+      await client.from("profiles").upsert({
+        id: user.id,
+        email: user.email,
+        avatar_url: "",
+        created_at: new Date(),
+        updated_at: new Date(),
+      });
+      ({ data: profile } = await client.from("profiles").select("*").eq("id", user.id).single());
+    }
+
+    if (profile?.avatar_url) {
+      avatarImg.src = profile.avatar_url;
+      profileIcon.src = profile.avatar_url;
+      localStorage.setItem("avatar_url", profile.avatar_url);
+    }
+
+    // Update avatar function
+    async function updateAvatar(url) {
+      const { error } = await client.from("profiles")
+        .update({ avatar_url: url, updated_at: new Date() })
+        .eq("id", user.id);
+      if (!error) {
+        avatarImg.src = url;
+        profileIcon.src = url;
+        localStorage.setItem("avatar_url", url);
+      } else console.error(error);
+    }
+
+    // Edit Avatar button
+    document.getElementById("edit-avatar").addEventListener("click", () => {
+      const choice = confirm("Press OK to enter a URL, Cancel to upload a file.");
+      if (choice) {
+        const newUrl = prompt("Enter new avatar URL:");
+        if (newUrl) updateAvatar(newUrl);
+      } else {
+        fileInput.click();
+      }
+    });
+
+    // File input change
+    fileInput.addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      showSpinner();
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}_${Date.now()}.${fileExt}`;
+      const { error: uploadError } = await client.storage.from("avatars").upload(fileName, file, { upsert: true });
+      if (uploadError) { hideSpinner(); alert("Upload failed!"); console.error(uploadError); return; }
+      const { data: { publicUrl }, error: urlError } = client.storage.from("avatars").getPublicUrl(fileName);
+      if (urlError) { hideSpinner(); alert("Failed to get public URL!"); return; }
+      await updateAvatar(publicUrl);
+      hideSpinner();
+    });
+
+    // Logout button
+    document.getElementById("logout").addEventListener("click", async () => {
+      await client.auth.signOut();
+      localStorage.clear();
+      window.location.href = "https://learncodium.github.io/codium-journey/register";
+    });
+
+  })();
+
+});
 </script>
 
 </body>
