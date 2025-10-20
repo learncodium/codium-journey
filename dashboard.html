@@ -150,23 +150,24 @@ h1 {
 <script>
 const client = supabase.createClient(
   "https://esdzwumkkdnlxsiljlzp.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzZHp3dW1ra2RubHhzaWxqbHpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2NDkxMzAsImV4cCI6MjA3NjIyNTEzMH0.ZTcGGjJGqZhWam-iwewA5Dc6q13BgkCIY4a2_TYBhu0"
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzZHp3dW1ra2RubHhzaWxqbHpwIiwicm9zZSI6ImFub24iLCJpYXQiOjE3NjA2NDkxMzAsImV4cCI6MjA3NjIyNTEzMH0.ZTcGGjJGqZhWam-iwewA5Dc6q13BgkCIY4a2_TYBhu0"
 );
 
-// Drawer toggle
 const drawer = document.getElementById('drawer');
 const overlay = document.getElementById('overlay');
 const profileIcon = document.getElementById('profile-icon');
+const avatarImg = document.getElementById('avatar');
+const fileInput = document.getElementById('file-input');
 
+// --- Drawer toggle ---
 function toggleDrawer() {
   drawer.classList.toggle('open');
   overlay.classList.toggle('active');
 }
-
 profileIcon.addEventListener('click', toggleDrawer);
 overlay.addEventListener('click', toggleDrawer);
 
-// Spinner + saved message setup
+// --- Spinner & Saved Message ---
 const spinner = document.createElement('div');
 spinner.id = "spinner";
 spinner.innerHTML = `
@@ -225,15 +226,23 @@ function showSaved() {
   setTimeout(() => savedMsg.style.display = "none", 2200);
 }
 
+// --- Main Auth + Profile Logic ---
 (async () => {
-  const { data: { user } } = await client.auth.getUser();
-  if (!user) {
+  const { data: { session } } = await client.auth.getSession();
+  if (!session || !session.user) {
     alert("Please sign in first!");
     window.location.href = "https://learncodium.github.io/codium-journey/register";
     return;
   }
-
+  const user = session.user;
   document.getElementById("user-info").textContent = user.email;
+
+  // Try cached avatar first
+  const cachedAvatar = localStorage.getItem("avatar_url");
+  if (cachedAvatar) {
+    avatarImg.src = cachedAvatar;
+    profileIcon.src = cachedAvatar;
+  }
 
   // Ensure profile exists
   let { data: profile } = await client
@@ -264,12 +273,13 @@ function showSaved() {
     document.getElementById("tokens").textContent = profile.tokens || 0;
     document.getElementById("xp").textContent = profile.total_xp || 0;
     if (profile.avatar_url) {
-      document.getElementById("avatar").src = profile.avatar_url;
+      avatarImg.src = profile.avatar_url;
       profileIcon.src = profile.avatar_url;
+      localStorage.setItem("avatar_url", profile.avatar_url);
     }
   }
 
-  // Fetch badges
+  // --- Fetch badges ---
   const { data: userStats } = await client
     .from("user_stats")
     .select("badges")
@@ -282,23 +292,20 @@ function showSaved() {
       .map(name => `<span class="badge-item">🏅 ${name}</span>`).join("");
   }
 
-  // Edit avatar (URL or file)
+  // --- Edit Avatar (URL or file upload) ---
   document.getElementById("edit-avatar").addEventListener("click", () => {
-    const choice = confirm("Press OK to enter a URL, Cancel to upload a file from your device.");
+    const choice = confirm("Press OK to enter a URL, Cancel to upload a file.");
     if (choice) {
       const newUrl = prompt("Enter new avatar image URL:");
-      if (!newUrl) return;
-      updateAvatar(newUrl);
-    } else {
-      document.getElementById("file-input").click();
-    }
+      if (newUrl) updateAvatar(newUrl);
+    } else fileInput.click();
   });
 
-  document.getElementById("file-input").addEventListener("change", async (e) => {
+  fileInput.addEventListener("change", async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
     showSpinner();
+
     const fileExt = file.name.split('.').pop();
     const fileName = `${user.id}_${Date.now()}.${fileExt}`;
     const { error: uploadError } = await client.storage
@@ -308,10 +315,14 @@ function showSaved() {
     if (uploadError) {
       hideSpinner();
       alert("Upload failed!");
+      console.error(uploadError);
       return;
     }
 
-    const { data: { publicUrl } } = client.storage.from('avatars').getPublicUrl(fileName);
+    const { data: { publicUrl } } = client.storage
+      .from('avatars')
+      .getPublicUrl(fileName);
+
     await updateAvatar(publicUrl);
     hideSpinner();
   });
@@ -322,17 +333,20 @@ function showSaved() {
       .from("profiles")
       .update({ avatar_url: url, updated_at: new Date() })
       .eq("id", user.id);
+
     hideSpinner();
     if (!error) {
-      document.getElementById("avatar").src = url;
+      avatarImg.src = url;
       profileIcon.src = url;
+      localStorage.setItem("avatar_url", url);
       showSaved();
     }
   }
 
-  // Logout
+  // --- Logout ---
   document.getElementById("logout").addEventListener("click", async () => {
     await client.auth.signOut();
+    localStorage.removeItem("avatar_url");
     localStorage.removeItem("chosenLanguage");
     window.location.href = "https://learncodium.github.io/codium-journey/register";
   });
