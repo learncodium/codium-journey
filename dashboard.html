@@ -8,6 +8,7 @@
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
@@ -16,6 +17,7 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
 }
+
 h1 {
   text-align: center;
   font-size: 2.5rem;
@@ -26,7 +28,11 @@ h1 {
   -webkit-text-fill-color: transparent;
   animation: gradientMove 4s infinite linear;
 }
-@keyframes gradientMove { from {background-position:0%} to {background-position:100%} }
+
+@keyframes gradientMove { 
+  from {background-position:0%} 
+  to {background-position:100%} 
+}
 
 /* Profile icon */
 .profile-icon {
@@ -48,19 +54,21 @@ h1 {
 .drawer {
   position: fixed;
   top: 0;
-  right: -360px;
+  right: 0;
   width: 350px;
+  max-width: 90%;
   height: 100%;
   background: rgba(20,20,30,0.95);
   box-shadow: -5px 0 30px rgba(0,255,255,0.2);
   padding: 30px 20px;
-  transition: right 0.4s ease;
+  transform: translateX(100%);
+  transition: transform 0.4s ease;
   z-index: 1000;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
 }
-.drawer.open { right: 0; }
+.drawer.open { transform: translateX(0); }
 
 .profile-section {
   background: rgba(255,255,255,0.04);
@@ -69,18 +77,23 @@ h1 {
   text-align: center;
   box-shadow: 0 0 20px rgba(0,255,255,0.2);
 }
+
 #user-info {
   color: #00c8ff;
   margin-bottom: 15px;
   font-weight: 600;
   word-break: break-all;
 }
+
 .avatar {
-  width: 100px; height: 100px; border-radius: 50%;
+  width: 100px; 
+  height: 100px; 
+  border-radius: 50%;
   object-fit: cover;
   border: 3px solid #00c8ff;
   box-shadow: 0 0 15px rgba(0,200,255,0.4);
 }
+
 .edit-btn {
   margin-top: 10px;
   padding: 8px 16px;
@@ -88,12 +101,23 @@ h1 {
   border: 1px solid #00ffa6;
   color: #00ffa6;
   background: transparent;
+  cursor: pointer;
 }
 .edit-btn:hover { background: #00ffa6; color: #000; }
-.stats { margin-top: 20px; text-align: left; line-height: 2rem; }
-.badges { margin-top: 20px; text-align: center; }
+
+.stats { 
+  margin-top: 20px; 
+  text-align: left; 
+  line-height: 2rem; 
+}
+
+.badges { 
+  margin-top: 20px; 
+  text-align: center; 
+}
 .badges h3 { color: #ff00c8; }
 .badge-item { display: inline-block; background: rgba(255,255,255,0.08); margin: 5px; padding: 8px 12px; border-radius: 10px; }
+
 .logout-btn {
   margin-top: 15px;
   background: linear-gradient(90deg, #ff0055, #ff7b00);
@@ -105,15 +129,40 @@ h1 {
   cursor: pointer;
   box-shadow: 0 0 15px rgba(255,123,0,0.3);
 }
-.logout-btn:hover { transform: scale(1.1); box-shadow: 0 0 25px rgba(255,123,0,0.6); }
+.logout-btn:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(255,123,0,0.6); }
 
 #overlay {
-  position: fixed; top:0; left:0; width:100%; height:100%;
-  background: rgba(0,0,0,0.4); display:none; z-index:999;
+  position: fixed; 
+  top:0; left:0; 
+  width:100%; height:100%;
+  background: rgba(0,0,0,0.4); 
+  display:none; 
+  z-index:999;
 }
 #overlay.active { display:block; }
 
 #file-input { display: none; }
+
+/* Spinner */
+#spinner-overlay {
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background: rgba(0,0,0,0.6);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:2000;
+}
+#spinner-overlay div {
+  width:60px;
+  height:60px;
+  border:5px solid #00ffa6;
+  border-top-color:transparent;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+@keyframes spin{ to{transform:rotate(360deg)} }
 </style>
 </head>
 <body>
@@ -124,7 +173,7 @@ h1 {
 <img id="profile-icon" class="profile-icon" src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png" alt="Profile">
 
 <!-- Drawer -->
-<div id="drawer" class="drawer">
+<div id="drawer" class="drawer" aria-hidden="true">
   <div class="profile-section">
     <p id="user-info"></p>
     <img id="avatar" src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png" alt="Avatar" class="avatar">
@@ -145,6 +194,7 @@ h1 {
 </div>
 
 <div id="overlay"></div>
+<div id="spinner-overlay"><div></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -158,45 +208,33 @@ const overlay = document.getElementById('overlay');
 const profileIcon = document.getElementById('profile-icon');
 const avatarImg = document.getElementById('avatar');
 const fileInput = document.getElementById('file-input');
+const spinnerOverlay = document.getElementById('spinner-overlay');
 
 // Drawer toggle
 function toggleDrawer() {
   drawer.classList.toggle('open');
   overlay.classList.toggle('active');
+  drawer.setAttribute('aria-hidden', !drawer.classList.contains('open'));
 }
 profileIcon.addEventListener('click', toggleDrawer);
 overlay.addEventListener('click', toggleDrawer);
 
-// Spinner
-const spinner = document.createElement('div');
-spinner.innerHTML = `
-  <div style="
-    position:fixed;top:0;left:0;width:100%;height:100%;
-    background:rgba(0,0,0,0.6);
-    display:flex;align-items:center;justify-content:center;
-    z-index:2000;">
-    <div style="width:60px;height:60px;border:5px solid #00ffa6;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;"></div>
-  </div>`;
-spinner.style.display = 'none';
-document.body.appendChild(spinner);
+// Spinner controls
+function showSpinner() { spinnerOverlay.style.display = 'flex'; }
+function hideSpinner() { spinnerOverlay.style.display = 'none'; }
 
-const style = document.createElement('style');
-style.textContent = `@keyframes spin{to{transform:rotate(360deg)}}`;
-document.head.appendChild(style);
-function showSpinner(){spinner.style.display='block'}
-function hideSpinner(){spinner.style.display='none'}
-
-// Main logic
 (async () => {
-  // Get session
   const { data: { session }, error: sessionError } = await client.auth.getSession();
   if (sessionError) console.error(sessionError);
 
   let user = session?.user;
+
+  // Listen to auth changes
+  client.auth.onAuthStateChange((_event, newSession) => {
+    if (!newSession) location.href = "https://learncodium.github.io/codium-journey/register";
+  });
+
   if (!user) {
-    const { data: authListener } = await client.auth.onAuthStateChange((_event, newSession) => {
-      if (newSession) location.reload();
-    });
     alert("Please sign in first!");
     window.location.href = "https://learncodium.github.io/codium-journey/register";
     return;
@@ -204,7 +242,7 @@ function hideSpinner(){spinner.style.display='none'}
 
   document.getElementById("user-info").textContent = user.email;
 
-  // Local avatar cache
+  // Load cached avatar
   const cachedAvatar = localStorage.getItem("avatar_url");
   if (cachedAvatar) {
     avatarImg.src = cachedAvatar;
@@ -212,10 +250,9 @@ function hideSpinner(){spinner.style.display='none'}
   }
 
   // Fetch or create profile
-  let { data: profile, error } = await client.from("profiles").select("*").eq("id", user.id).single();
-
+  let { data: profile } = await client.from("profiles").select("*").eq("id", user.id).single();
   if (!profile) {
-    await client.from("profiles").insert({
+    await client.from("profiles").upsert({
       id: user.id,
       email: user.email,
       avatar_url: "",
@@ -231,7 +268,7 @@ function hideSpinner(){spinner.style.display='none'}
     localStorage.setItem("avatar_url", profile.avatar_url);
   }
 
-  // Upload or URL change
+  // Avatar change
   document.getElementById("edit-avatar").addEventListener("click", () => {
     const choice = confirm("Press OK to enter a URL, Cancel to upload a file.");
     if (choice) {
@@ -257,25 +294,23 @@ function hideSpinner(){spinner.style.display='none'}
       console.error(uploadError);
       return;
     }
-    const { data: { publicUrl } } = client.storage
+    const { data: { publicUrl }, error: urlError } = client.storage
       .from("avatars")
       .getPublicUrl(fileName);
+    if (urlError) { hideSpinner(); alert("Failed to get public URL!"); return; }
     await updateAvatar(publicUrl);
     hideSpinner();
   });
 
   async function updateAvatar(url) {
-    const { error } = await client
-      .from("profiles")
+    const { error } = await client.from("profiles")
       .update({ avatar_url: url, updated_at: new Date() })
       .eq("id", user.id);
     if (!error) {
       avatarImg.src = url;
       profileIcon.src = url;
       localStorage.setItem("avatar_url", url);
-    } else {
-      console.error(error);
-    }
+    } else console.error(error);
   }
 
   // Logout
@@ -286,5 +321,6 @@ function hideSpinner(){spinner.style.display='none'}
   });
 })();
 </script>
+
 </body>
 </html>
