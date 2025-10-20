@@ -285,7 +285,7 @@
 
   // Redirect if already signed in
   client.auth.getSession().then(({ data: { session } }) => {
-    if (session && session.user) window.location.href = 'dashboard.html';
+    if (session && session.user) window.location.href = 'https://learncodium.github.io/codium-journey/dashboard';
   });
 
   // Sign up
@@ -297,7 +297,7 @@
       showLoading();
       const { data, error } = await client.auth.signUp({ email, password });
       if (error) showMsg(signupMsg, error.message);
-      else if (data.user) window.location.href = 'dashboard.html';
+      else if (data.user) window.location.href = 'https://learncodium.github.io/codium-journey/dashboard';
       else showMsg(signupMsg, 'Check your email to confirm sign up.');
     } catch {
       showMsg(signupMsg, 'Unexpected error.');
@@ -325,7 +325,7 @@
       showLoading();
       const { error } = await client.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: `${window.location.origin}/dashboard.html` }
+        options: { redirectTo: `${window.location.origin}https://learncodium.github.io/codium-journey/dashboard` }
       });
       if (error) alert(error.message);
     } catch {
@@ -339,3 +339,4 @@
 </script>
 </body>
 </html>
+
