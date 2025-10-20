@@ -313,7 +313,7 @@
       showLoading();
       const { error } = await client.auth.signInWithPassword({ email, password });
       if (error) showMsg(signinMsg, error.message);
-      else window.location.href = 'dashboard.html';
+      else window.location.href = 'https://learncodium.github.io/codium-journey/dashboard.html';
     } catch {
       showMsg(signinMsg, 'Unexpected error.');
     } finally { hideLoading(); }
@@ -325,7 +325,7 @@
       showLoading();
       const { error } = await client.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: `${window.location.origin}https://learncodium.github.io/codium-journey/dashboard` }
+        options: { redirectTo: `${window.location.origin} = 'https://learncodium.github.io/codium-journey/dashboard` }
       });
       if (error) alert(error.message);
     } catch {
